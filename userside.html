@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .carousel-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .restaurant-card {
+            margin-bottom: 20px;
+        }
+        .image-size{
+            width: 100%;
+            height: 260px;
+        }
+        .no-menu {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 50px;
+        }
+
+        .text-shadow {
+            text-shadow: 3px 3px 3px white;
+        }
+
+        .background {
+            color: rgb(0, 0, 0);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Restaurant App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="mt-5">View Restaurants</h1>
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active ">
+                    <img src="https://t4.ftcdn.net/jpg/02/94/26/33/360_F_294263329_1IgvqNgDbhmQNgDxkhlW433uOFuIDar4.jpg"
+                        class="d-block w-100 background" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5 class="text-black display-3 text-shadow">Dasi Resturent</h5>
+                        <p class="text-dark fs-5">Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam, a.
+                        </p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://inrestoblog.s3.ap-south-1.amazonaws.com/types1.png" class="d-block w-100"
+                        alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5 class="text-black display-3 text-shadow">Fast Food Resturent</h5>
+                        <p>Second slide text</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="https://images.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDIyLTA1L2stcGYtcG9tLTEyNDIuanBn.jpg"
+                        class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5 class="text-black display-3 text-shadow ">Dhaba</h5>
+                        <p>Third slide text</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row mt-5" id="restaurants"></div>
+
+        <!-- <div class="no-menu">No menu found</div> -->
+
+        <div class="row mt-5" id="menu" style="display: none;">No menu found</div>
+
+        <div class="row mt-5" id="cart" style="display: none;"></div>
+
+        <button id="checkoutBtn" class="btn btn-primary mt-3" style="display: none;">Proceed to Checkout</button>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Get users from local storage
+        const users = JSON.parse(localStorage.getItem("users")) || [];
+
+        // Filter restaurant users
+        const restaurants = users.filter(user => user.type === "restaurant");
+
+        // Sample data for categories (replace with data from local storage)
+        const categories = JSON.parse(localStorage.getItem('categories')) || [];
+
+        // Sample rating data (hard-coded)
+        const defaultRating = 4.5;
+
+        // Sample data for cart
+        const cart = [];
+
+        // Function to render restaurants
+        // Function to generate star icons based on rating
+        // Function to generate star icons based on rating
+        function generateStars(rating) {
+            const roundedRating = Math.round(rating * 2) / 2; // Round rating to nearest 0.5
+            const fullStars = Math.floor(roundedRating);
+            const halfStar = roundedRating % 1 !== 0;
+            const stars = [];
+
+            for (let i = 0; i < fullStars; i++) {
+                stars.push('<i class="fas fa-star"></i>'); // Font Awesome star icon
+            }
+
+            if (halfStar) {
+                stars.push('<i class="fas fa-star-half-alt"></i>'); // Font Awesome half star icon
+            }
+
+            return stars.join('');
+        }
+
+
+        // Modified renderRestaurants function with star rating
+        function renderRestaurants() {
+            const restaurantsContainer = document.getElementById("restaurants");
+            restaurantsContainer.innerHTML = "";
+            restaurants.forEach(restaurant => {
+                const restaurantCard = document.createElement("div");
+                restaurantCard.classList.add("col");
+                restaurantCard.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">${restaurant.name}</h5>
+                    <p class="card-text">Email: ${restaurant.email}</p>
+                    <p class="card-text">Contact: ${restaurant.contact}</p>
+                    <p class="card-text">Address: ${restaurant.address}</p>
+                    <p class="card-text">Rating: ${generateStars(defaultRating)}</p>
+                    <button type="button" class="btn btn-primary" onclick="toggleMenu('${restaurant.name}')">View Menu</button>
+                </div>
+            </div>
+        `;
+                restaurantsContainer.appendChild(restaurantCard);
+            });
+        }
+
+
+        // Function to toggle menu visibility
+        function toggleMenu(restaurantName) {
+            const menuContainer = document.getElementById("menu");
+            const currentDisplayStyle = menuContainer.style.display;
+            if (currentDisplayStyle === "none") {
+                viewMenu(restaurantName);
+                menuContainer.style.display = "block"; // Show menu
+            } else {
+                menuContainer.innerHTML = ""; // Clear menu content
+                menuContainer.style.display = "none"; // Hide menu
+            }
+        }
+
+        // Function to render menu for a specific restaurant
+        function viewMenu(restaurantName) {
+            const menuContainer = document.getElementById("menu");
+            menuContainer.innerHTML = `<h2>${restaurantName} Menu</h2>`;
+
+            // Create a row for the cards
+            const row = document.createElement("div");
+            row.classList.add("row");
+
+            categories.forEach(category => {
+                category.items.forEach(item => {
+                    if (item.restaurant === restaurantName) {
+                        // Create a card for each menu item
+                        const menuItem = document.createElement("div");
+                        menuItem.classList.add("col-md-4"); // Adjust column size as needed
+                        menuItem.innerHTML = `
+                            <div class="card mb-4">
+                                <img src="${item.image}" class="card-img-top image-size" alt="${item.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${category.name}</h5>
+                                    <p class="card-text"><strong>Item:</strong> ${item.name}</p>
+                                    <p class="card-text"><strong>Restaurant:</strong> ${item.restaurant}</p>
+                                    <p class="card-text"><strong>Price:</strong> $${item.price}</p>
+                                    <p class="card-text"><strong>Description:</strong> ${item.description}</p>
+                                    <button type="button" class="btn btn-primary" onclick="addItemToCart('${restaurantName}', '${category.name}', '${item.name}', ${item.price})">Add to Cart</button>
+                                </div>
+                            </div>
+                        `;
+                        row.appendChild(menuItem);
+                    }
+                });
+            });
+
+            // Append the row to the menu container
+            menuContainer.appendChild(row);
+
+            // Show menu container
+            menuContainer.style.display = "block";
+        }
+
+        // Function to add item to cart
+        // Function to add item to cart
+        function addItemToCart(restaurantName, categoryName, itemName, price) {
+            // Check if item already exists in cart
+            const existingItemIndex = cart.findIndex(item => item.restaurant === restaurantName && item.category === categoryName && item.name === itemName);
+
+            if (existingItemIndex !== -1) {
+                // If item already exists, increment its quantity
+                cart[existingItemIndex].quantity++;
+            } else {
+                // If item does not exist, add it to the cart with quantity 1
+                const item = { restaurant: restaurantName, category: categoryName, name: itemName, price: price, quantity: 1 };
+                cart.push(item);
+            }
+
+            renderCart();
+        }
+
+        // Function to remove item from cart
+        function removeItemFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        // Function to increment quantity of an item in the cart
+        function incrementQuantity(index) {
+            cart[index].quantity++;
+            renderCart();
+        }
+
+        // Function to decrement quantity of an item in the cart
+        function decrementQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+                renderCart();
+            }
+        }
+
+        // Function to render cart
+        // Function to render cart
+        function renderCart() {
+            const cartContainer = document.getElementById("cart");
+            cartContainer.innerHTML = `<h2>Cart</h2>`;
+            let totalPrice = 0;
+
+            const cartItemsWrapper = document.createElement("div");
+            cartItemsWrapper.classList.add("d-flex", "flex-wrap");
+
+            cart.forEach((item, index) => {
+                const cartItem = document.createElement("div");
+                cartItem.classList.add("col-md-4", "mb-4", "me-2"); // Adjust column size and margin as needed
+                cartItem.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">${item.name}</h5>
+                    <p class="card-text"><strong>Restaurant:</strong> ${item.restaurant}</p>
+                    <p class="card-text"><strong>Category:</strong> ${item.category}</p>
+                    <p class="card-text"><strong>Price:</strong> $${item.price}</p>
+                    <div class="input-group mb-3">
+                        <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity(${index})">-</button>
+                        <input type="text" class="form-control" value="${item.quantity}" readonly>
+                        <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity(${index})">+</button>
+                    </div>
+                    <p class="card-text"><strong>Total:</strong> $${item.price * item.quantity}</p>
+                    <button type="button" class="btn btn-danger" onclick="removeItemFromCart(${index})">Remove</button>
+                </div>
+            </div>
+        `;
+                cartItemsWrapper.appendChild(cartItem);
+
+                totalPrice += item.price * item.quantity;
+            });
+
+            cartContainer.appendChild(cartItemsWrapper);
+
+            // Display total price
+            const totalPriceElement = document.createElement("p");
+            totalPriceElement.innerHTML = `<strong>Total Price:</strong> $${totalPrice}`;
+            cartContainer.appendChild(totalPriceElement);
+
+            // Show cart and checkout button if cart has items
+            const checkoutBtn = document.getElementById("checkoutBtn");
+            if (cart.length > 0) {
+                cartContainer.style.display = "block";
+                checkoutBtn.style.display = "block";
+            } else {
+                cartContainer.style.display = "none";
+                checkoutBtn.style.display = "none";
+            }
+            if (checkoutBtn) {
+                // Attach an event listener to the checkout button
+                checkoutBtn.addEventListener("click", function() {
+                    // Redirect to thanks.html when the checkout button is clicked
+                    window.location.href = "thanks.html";
+                });
+        }
+        }
+
+
+        // Initial rendering
+        renderRestaurants();
+
+        // You can also implement search, sort, and other functionalities as required
+    </script>
+</body>
+
+</html>

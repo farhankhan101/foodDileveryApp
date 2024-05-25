@@ -1,0 +1,2 @@
+User
+it's for registration i now i need for login when login page open then show two buteen for customer and for returnet when I l click resturent then it take email and password if user.type ==resturent and there object we have email and password then store it in local storage and redirect in to resturent.html and when i click customer then its also check where user.type == customer and match email and password then it save in local storage and redirect in userside.html i need to check from local storage or user object
